@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>GIS App</title>
+    <meta name="viewport" content="initial-scale=1.0">
+    <meta charset="utf-8">
+      <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <style>
+      /* Always set the map height explicitly to define the size of the div
+       * element that contains the map. */
+      #map {
+        height: 100%;
+      }
+    
+      /* Optional: Makes the sample page fill the window. */
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+    .navbar-inverse{
+	background-color:#FAEBD7;
+     border-color:#FAEBD7;
+    margin-bottom: 0;
+    </style>
+  </head>
+  <body>
+<script src="https://code.jquery.com/jquery-2.1.4.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+      
+	<nav class="navbar navbar-inverse">
+		<div class="container">
+			<div class="navbar-header">
+				 <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-nav-demo" aria-expanded="false">
+	        <span class="sr-only">Toggle navigation</span>
+	        <span class="icon-bar"></span>
+	        <span class="icon-bar"></span>
+	        <span class="icon-bar"></span>
+	      </button>
+				<a href="#" class="navbar-brand"><i class="fa fa-camera-retro"></i> GIS App</a>
+			</div>
+			<div class="collapse navbar-collapse" id="bs-nav-demo">
+				<ul class="nav navbar-nav">
+					<li><a href="#">בחר מיקום</a></li>
+					<li><a href="#">נ"צ</a></li>
+				</ul>
+				<ul class="nav navbar-nav navbar-right">
+					<li><a href="#">קישור לחמ"ל</a></li>
+				</ul>
+			</div>
+		</div>
+	</nav>
+    <div id="map"></div>
+    <script>
+      var map;
+      function initMap() {
+        map = new google.maps.Map(document.getElementById('map'), {
+          center: {lat: 31.771959, lng: 35.217018},
+          zoom: 8
+        });
+
+        
+        var image = {
+            url: 'shelterIcon.png',
+             scaledSize: new google.maps.Size(32, 32),
+             anchor: new google.maps.Point(16, 28)
+          };
+
+        var myLatLng = {lat: 31.775959, lng: 35.215018};
+        
+        var eliHome = {lat: 31.778091, lng: 34.627130};
+
+        var marker = new google.maps.Marker({
+          position: myLatLng,
+          map: map,
+          icon: image,
+          title: 'Hello World!'
+        });   
+
+        var marker2 = new google.maps.Marker({
+          position: eliHome,
+          map: map,
+          icon: image,
+          title: 'Eli Home'
+        });
+      }
+    </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyABmPzSUCZNaJbOSUpzj7L0Ckt0j_W2VM4&callback=initMap"
+    async defer></script>
+  </body>
+</html>
