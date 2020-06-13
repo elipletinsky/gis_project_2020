@@ -9,7 +9,7 @@
       /* Always set the map height explicitly to define the size of the div
        * element that contains the map. */
       #map {
-        height: 100%;
+        height: 92%;
       }
     
       /* Optional: Makes the sample page fill the window. */
@@ -27,63 +27,144 @@
   <body>
 <script src="https://code.jquery.com/jquery-2.1.4.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios@0.18.0/dist/axios.min.js"></script>
       
-	<nav class="navbar navbar-inverse">
-		<div class="container">
-			<div class="navbar-header">
-				 <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-nav-demo" aria-expanded="false">
-	        <span class="sr-only">Toggle navigation</span>
-	        <span class="icon-bar"></span>
-	        <span class="icon-bar"></span>
-	        <span class="icon-bar"></span>
-	      </button>
-				<a href="#" class="navbar-brand"><i class="fa fa-camera-retro"></i> GIS App</a>
+		<nav class="navbar navbar-inverse">
+			<div class="container">
+				<div class="navbar-header">
+					 <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-nav-demo" aria-expanded="false">
+				<span class="sr-only">Toggle navigation</span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			  </button>
+					<a href="#" class="navbar-brand"><i class="fa fa-camera-retro"></i> GIS App</a>
+				</div>
+				<div class="collapse navbar-collapse" id="bs-nav-demo">
+					<ul class="nav navbar-nav">
+						<li id="selectMapCenter"><a href="#">Track by map center</a></li>
+						<li id="selectGps" ><a href="#">Track by GPS</a></li>
+					</ul>
+					<ul class="nav navbar-nav navbar-right">
+						<li><a href="https://www.hamal.co.il/">קישור לחמל</a></li>
+					</ul>
+				</div>
 			</div>
-			<div class="collapse navbar-collapse" id="bs-nav-demo">
-				<ul class="nav navbar-nav">
-					<li><a href="#">בחר מיקום</a></li>
-					<li><a href="#">נ"צ</a></li>
-				</ul>
-				<ul class="nav navbar-nav navbar-right">
-					<li><a href="#">קישור לחמ"ל</a></li>
-				</ul>
-			</div>
-		</div>
-	</nav>
-    <div id="map"></div>
+		</nav>
+		<div id="map" height="400"></div>
+
     <script>
-      var map;
-      function initMap() {
-        map = new google.maps.Map(document.getElementById('map'), {
-          center: {lat: 31.771959, lng: 35.217018},
-          zoom: 8
-        });
+	   var map = null;
+	   
+	   function initMap() {
+			var mapPlaceholder = document.getElementById('map');
+			 map = new google.maps.Map(mapPlaceholder, {
+			  center: {lat: 31.771959, lng: 35.217018},
+			  zoom: 8
+			});
+		} 
+	
+	   var gpsButton = document.getElementById('selectGps');
+	   var centerButton = document.getElementById('selectMapCenter');
+       var distance = 30000;
+	   var markers = [];
+	   var image = null;
+	  
+	   gpsButton.addEventListener("click", function(){
+	        // Try HTML5 geolocation.
+			if (navigator.geolocation)
+			{
+			  navigator.geolocation.getCurrentPosition(function(position) {
+				let pos = {
+				  lat: position.coords.latitude,
+				  lng: position.coords.longitude
+				};
 
-        
-        var image = {
-            url: 'shelterIcon.png',
-             scaledSize: new google.maps.Size(32, 32),
-             anchor: new google.maps.Point(16, 28)
-          };
+				map.setCenter(pos);
+				resetMarkersForLocation(pos.lat, pos.lng);
+				
+				getSheltersForPosition(pos.lat, pos.lng);
+			  }, function() {
+				alert("you need to submit access to your gps");
+			  });
+			} else {
+			  // Browser doesn't support Geolocation
+			  alert("your browser does not support GPS")
+			}
+	   });
+	   
+	   centerButton.addEventListener("click", function(){
+			let pos = map.getCenter();
+			
+			resetMarkersForLocation(pos.lat(), pos.lng());
+			  
+			getSheltersForPosition(pos.lat(), pos.lng());
+	   });
+	   
 
-        var myLatLng = {lat: 31.775959, lng: 35.215018};
-        
-        var eliHome = {lat: 31.778091, lng: 34.627130};
-
-        var marker = new google.maps.Marker({
-          position: myLatLng,
-          map: map,
-          icon: image,
-          title: 'Hello World!'
-        });   
-
-        var marker2 = new google.maps.Marker({
-          position: eliHome,
-          map: map,
-          icon: image,
-          title: 'Eli Home'
-        });
-      }
+		function resetMarkersForLocation(lat, lon) {
+		
+			let centerMarker = new google.maps.Marker({
+				position: {lat: lat, lng: lon},
+				map: map
+			  });  
+							
+			// delete all previous markers
+			for (var i = 0; i < markers.length; i++) {
+			  markers[i].setMap(null);
+			}
+			
+			markers = [];
+				
+			markers.push(centerMarker);	
+		}
+		
+		function getSheltersForPosition(lat, lon)
+        {
+      
+          try{
+            fetch("http://miklatim.azurewebsites.net/api/GetShelters?lat="+lat+"&lon="+lon+"&distance="+distance
+            
+            )
+              .then(response => {
+                console.log(response);
+                if(!response.ok)
+                  throw new Error("Not 2xx response");
+                if(response != null)
+                  return response.json();
+                })
+              .then(pointList => 
+              {
+                               
+				if (image == null){
+					image = {
+						url: 'shelterIcon.png',
+						 scaledSize: new google.maps.Size(32, 32),
+						 anchor: new google.maps.Point(16, 28)
+					  };
+				}
+							
+				// add new markers
+                for(const elem of pointList){
+                  let cords = {lat: elem.location.coordinates[1],lng: elem.location.coordinates[0]};
+                  console.log(cords);
+                  var marker = new google.maps.Marker({
+                    position: cords,
+                    map: map,
+                    icon: image,
+                    title: 'Hello World!'
+                  });   
+                  markers.push(marker);
+                }
+              }
+              , error => {
+                console.log(error);
+					alert("Nothing found");
+                });
+          }catch(error){
+            console.log("got error"+error);
+          }
+        }
     </script>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyABmPzSUCZNaJbOSUpzj7L0Ckt0j_W2VM4&callback=initMap"
     async defer></script>
