@@ -66,7 +66,7 @@
 	
 	   var gpsButton = document.getElementById('selectGps');
 	   var centerButton = document.getElementById('selectMapCenter');
-       var distance = 30000;
+     var distance = 5000;
 	   var markers = [];
 	   var image = null;
 	  
@@ -123,7 +123,7 @@
         {
       
           try{
-            fetch("http://miklatim.azurewebsites.net/api/GetShelters?lat="+lat+"&lon="+lon+"&distance="+distance
+            fetch("https://miklatim.azurewebsites.net/api/GetShelters?lat="+lat+"&lon="+lon+"&distance="+distance
             
             )
               .then(response => {
