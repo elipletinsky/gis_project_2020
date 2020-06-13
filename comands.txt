@@ -1,3 +1,5 @@
 curl -X POST -H "Content-Type:application/json" -d @miklatim.geojson "http://localhost:7071/api/InitDb"
 
+local function test Uri:
+
 http://localhost:7071/api/GetShelters?lat=31.8&lon=34.9&distance=3000
