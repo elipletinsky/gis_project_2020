@@ -38,7 +38,7 @@
 				<span class="icon-bar"></span>
 				<span class="icon-bar"></span>
 			  </button>
-					<a href="#" class="navbar-brand"><i class="fa fa-camera-retro"></i> GIS App</a>
+				
 				</div>
 				<div class="collapse navbar-collapse" id="bs-nav-demo">
 					<ul class="nav navbar-nav">
@@ -59,10 +59,11 @@
 	   function initMap() {
 			var mapPlaceholder = document.getElementById('map');
 			 map = new google.maps.Map(mapPlaceholder, {
-			  center: {lat: 31.771959, lng: 35.217018},
-			  zoom: 8
+			  center: {lat: 31.757196, lng: 35.074449},
+			  zoom: 11.5
 			});
 		} 
+		
 	
 	   var gpsButton = document.getElementById('selectGps');
 	   var centerButton = document.getElementById('selectMapCenter');
@@ -138,21 +139,30 @@
                                
 				if (image == null){
 					image = {
+						labelOrigin: new google.maps.Point(11, 38),
 						url: 'shelterIcon.png',
 						 scaledSize: new google.maps.Size(32, 32),
-						 anchor: new google.maps.Point(16, 28)
+						 anchor: new google.maps.Point(8, 28)
+						 /*anchor: new google.maps.Point(16, 28)*/
 					  };
 				}
 							
 				// add new markers
                 for(const elem of pointList){
                   let cords = {lat: elem.location.coordinates[1],lng: elem.location.coordinates[0]};
-                  console.log(cords);
+				  console.log(cords);
+				  let dist =Math.floor(elem.distance);
+				  dist = dist.toString();
                   var marker = new google.maps.Marker({
                     position: cords,
                     map: map,
                     icon: image,
-                    title: 'Hello World!'
+                    title: elem.name,
+					label: {
+  							 color: 'gray',
+    						 fontWeight: 'bold',
+    						 text: dist +" meters",
+  							},
                   });   
                   markers.push(marker);
                 }

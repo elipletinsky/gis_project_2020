@@ -3,3 +3,7 @@ curl -X POST -H "Content-Type:application/json" -d @miklatim.geojson "http://loc
 local function test Uri:
 
 http://localhost:7071/api/GetShelters?lat=31.8&lon=34.9&distance=3000
+
+https://miklatim.azurewebsites.net/api/GetShelters?lat=31.8&lon=34.9&distance=100000
+
+<a href="#" class="navbar-brand"><i class="fa fa-camera-retro"></i> GIS App</a>
