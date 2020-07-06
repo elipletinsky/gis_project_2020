@@ -19,8 +19,8 @@
         padding: 0;
       }
     .navbar-inverse{
-	background-color:#FAEBD7;
-     border-color:#FAEBD7;
+	background-color:rgb(4, 1, 24);
+     border-color:rgb(4, 1, 24);
     margin-bottom: 0;
     </style>
   </head>
@@ -38,12 +38,13 @@
 				<span class="icon-bar"></span>
 				<span class="icon-bar"></span>
 			  </button>
-				
+					<a href="#" class="navbar-brand"><i class="fa fa-camera-retro"></i> GIS App</a>
 				</div>
 				<div class="collapse navbar-collapse" id="bs-nav-demo">
 					<ul class="nav navbar-nav">
 						<li id="selectMapCenter"><a href="#">Track by map center</a></li>
 						<li id="selectGps" ><a href="#">Track by GPS</a></li>
+						<li id="changeRadius"><a href="#">Change Search Radius</a></li>
 					</ul>
 					<ul class="nav navbar-nav navbar-right">
 						<li><a href="https://www.hamal.co.il/">קישור לחמל</a></li>
@@ -55,22 +56,25 @@
 
     <script>
 	   var map = null;
-	   
+	   var radiusButton = document.getElementById('changeRadius');
+	   var gpsButton = document.getElementById('selectGps');
+	   var centerButton = document.getElementById('selectMapCenter');
+       var distance = 5000;
+	   var markers = [];
+	   var image = null;
+
+	   /* initialize map */
 	   function initMap() {
 			var mapPlaceholder = document.getElementById('map');
 			 map = new google.maps.Map(mapPlaceholder, {
-			  center: {lat: 31.757196, lng: 35.074449},
-			  zoom: 11.5
+			  center: {lat: 31.771959, lng: 35.217018},
+			  zoom: 11
 			});
 		} 
-		
-	
-	   var gpsButton = document.getElementById('selectGps');
-	   var centerButton = document.getElementById('selectMapCenter');
-     var distance = 5000;
-	   var markers = [];
-	   var image = null;
-	  
+
+
+		/* Listener for 'track by gps' button */
+		/* activates getSheltersForPosition for gps location of user */
 	   gpsButton.addEventListener("click", function(){
 	        // Try HTML5 geolocation.
 			if (navigator.geolocation)
@@ -93,7 +97,11 @@
 			  alert("your browser does not support GPS")
 			}
 	   });
-	   
+
+
+
+	   /* Listener for 'Track by map center' button */
+		/* activates getSheltersForPosition for current map center cords */
 	   centerButton.addEventListener("click", function(){
 			let pos = map.getCenter();
 			
@@ -101,25 +109,39 @@
 			  
 			getSheltersForPosition(pos.lat(), pos.lng());
 	   });
-	   
 
+
+
+
+	   /* Listener for 'Change Radius' button */
+	    /* changes distance value by input from user  */
+	   radiusButton.addEventListener("click", function(){
+	   		var tempRadius = prompt("change radius (meters) to", distance);
+			distance = tempRadius ;
+	   });
+	  
+	
+
+
+		/* deleteing previous shelters and center marker */
 		function resetMarkersForLocation(lat, lon) {
 		
 			let centerMarker = new google.maps.Marker({
 				position: {lat: lat, lng: lon},
 				map: map
 			  });  
-							
-			// delete all previous markers
+			/* deleteing previous shelters from 'markers' array */				
 			for (var i = 0; i < markers.length; i++) {
 			  markers[i].setMap(null);
 			}
-			
-			markers = [];
-				
+			markers = [];	
 			markers.push(centerMarker);	
 		}
-		
+
+
+
+		/* send query to server that gets all shelters in radius(distance variable) */
+		/* then draws all the retrieved shelters on map */
 		function getSheltersForPosition(lat, lon)
         {
       
@@ -139,18 +161,17 @@
                                
 				if (image == null){
 					image = {
-						labelOrigin: new google.maps.Point(11, 38),
 						url: 'shelterIcon.png',
 						 scaledSize: new google.maps.Size(32, 32),
-						 anchor: new google.maps.Point(8, 28)
-						 /*anchor: new google.maps.Point(16, 28)*/
+						 anchor:new google.maps.Point(16, 28),
+						 labelOrigin: new google.maps.Point(16, 37)
 					  };
 				}
 							
-				// add new markers
+				/* drawing retrieved shelters on map */
                 for(const elem of pointList){
                   let cords = {lat: elem.location.coordinates[1],lng: elem.location.coordinates[0]};
-				  console.log(cords);
+                  console.log(cords);
 				  let dist =Math.floor(elem.distance);
 				  dist = dist.toString();
                   var marker = new google.maps.Marker({
@@ -161,20 +182,22 @@
 					label: {
   							 color: 'gray',
     						 fontWeight: 'bold',
-    						 text: dist +" meters",
+    						 text: dist +" m",
   							},
-                  });   
-                  markers.push(marker);
+                  });    
+                  markers.push(marker);/* inserting retrieved shelters into 'markers' array for later deletion */
                 }
               }
               , error => {
                 console.log(error);
-					alert("Nothing found");
+					alert("No shelters in the area");
                 });
           }catch(error){
             console.log("got error"+error);
           }
         }
+
+
     </script>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyABmPzSUCZNaJbOSUpzj7L0Ckt0j_W2VM4&callback=initMap"
     async defer></script>
